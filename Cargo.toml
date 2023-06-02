@@ -10,6 +10,10 @@ name = "fm_library"
 path = "fm_library/src/lib.rs"
 
 [[bin]]
+name = "fm_cli"
+path = "fm_cli/src/main.rs"
+
+[[bin]]
 name = "fm_daemon"
 path = "fm_daemon/src/main.rs"
 

@@ -1,0 +1,226 @@
+CXL Fabric Manager (FM) infrastructure
+
+CXL Fabric Manager (FM) is the application logic responsible for
+system composition and allocation of resources. The FM can be embedded
+in the firmware of a device such as a CXL switch, reside on a host,
+or could be run on a Baseboard Management Controller (BMC).
+CXL Specification 3.0 defines Fabric Management as: "CXL devices can be
+configured statically or dynamically via a Fabric Manager (FM),
+an external logical process that queries and configures the system’s
+operational state using the FM commands defined in this specification.
+The FM is defined as the logical process that decides when
+reconfiguration is necessary and initiates the commands to perform
+configurations. It can take any form, including, but not limited to,
+software running on a host machine, embedded software running on a BMC,
+embedded firmware running on another CXL device or CXL switch,
+or a state machine running within the CXL device itself.".
+
+CXL devices are configured by FM through the Fabric Manager Application
+Programming Interface (FM API) command sets through a CCI (Component
+Command Interface). A CCI is exposed through a device’s Mailbox registers
+or through an MCTP-capable (Management Component Transport Protocol)
+interface.
+
+FM API Commands (defined by CXL Specification 3.0):
+(1) Physical switch
+    - Identify Switch Device,
+    - Get Physical Port State,
+    - Physical Port Control,
+    - Send PPB (PCI-to-PCI Bridge) CXL.io Configuration Request.
+(2) Virtual Switch
+    - Get Virtual CXL Switch Info,
+    - Bind vPPB (Virtual PCI-to-PCI Bridge),
+    - Unbind vPPB,
+    - Generate AER (Advanced Error Reporting Event).
+(3) MLD Port
+    - Tunnel Management Command,
+    - Send LD (Logical Device) or FMLD (Fabric Manager-owned Logical Device)
+      CXL.io Configuration Request,
+    - Send LD CXL.io Memory Request.
+(4) MLD Components
+    - Get LD (Logical Device) Info,
+    - Get LD Allocations,
+    - Set LD Allocations,
+    - Get QoS Control,
+    - Set QoS Control,
+    - Get QoS Status,
+    - Get QoS Allocated Bandwidth,
+    - Set QoS Allocated Bandwidth,
+    - Get QoS Bandwidth Limit,
+    - Set QoS Bandwidth Limit.
+(5) Multi- Headed Devices (Get Multi-Headed Info).
+(6) DCD (Dynamic Capacity Device) Management
+    - Get DCD Info,
+    - Get Host Dynamic Capacity Region Configuration,
+    - Set Dynamic Capacity Region Configuration,
+    - Get DCD Extent Lists,
+    - Initiate Dynamic Capacity Add,
+    - Initiate Dynamic Capacity Release.
+
+After the initial configuration is complete and a CCI on the switch is
+operational, an FM can send Management Commands to the switch.
+
+An FM may perform the following dynamic management actions on a CXL switch:
+(1) Query switch information and configuration details,
+(2) Bind or Unbind ports,
+(3) Register to receive and handle event notifications from the switch
+    (e.g., hot plug, surprise removal, and failures).
+
+A switch with MLD (Multi-Logical Device) requires an FM to perform
+the following management activities:
+(1) MLD discovery,
+(2) LD (Logical Device) binding/unbinding,
+(3) Management Command Tunneling.
+
+The FM can connect to an MLD (Multi-Logical Device) over a direct connection or
+by tunneling its management commands through the CCI of the CXL switch
+to which the device is connected. The FM can perform the following
+operations:
+(1) Memory allocation and QoS Telemetry management,
+(2) Security (e.g., LD erasure after unbinding),
+(3) Error handling.
+
+fm_cli - FM configuration tool
+Commands:
+
+Discover - discover available agents
+Subcommands:
+    - fm_cli discover fm
+         (discover FM instances)
+    - fm_cli discover cxl_devices
+         (discover CXL devices)
+    - fm_cli discover cxl_switches
+         (discover CXL switches)
+    - fm_cli discover logical_devices
+         (discover logical devices)
+
+FM - manage Fabric Manager
+Subcommands:
+    - fm_cli fm get_info
+         (get FM status/info)
+    - fm_cli fm start
+         (start FM instance)
+    - fm_cli fm restart
+         (restart FM instance)
+    - fm_cli fm stop
+         (stop FM instance)
+    - fm_cli fm get_config
+         (get FM configuration)
+    - fm_cli fm set_config
+         (set FM configuration)
+    - fm_cli fm get_events
+         (get event records)
+
+Switch - manage CXL switch
+Subcommands:
+    - fm_cli switch get_info
+         (get CXL switch info/status)
+    - fm_cli switch get_config
+         (get switch configuraiton)
+    - fm_cli switch set_config
+         (set switch configuration)
+
+Logical Device - manage logical devices
+Subcommands:
+    - fm_cli multi_headed_device info
+         (retrieves the number of heads, number of supported LDs,
+          and Head-to-LD mapping of a Multi-Headed device)
+    - fm_cli logical_device bind
+         (bind logical device)
+    - fm_cli logical_device unbind
+         (unbind logical device)
+    - fm_cli logical_device connect
+         (connect Multi Logical Device to CXL switch)
+    - fm_cli logical_device disconnect
+         (disconnect Multi Logical Device from CXL switch)
+    - fm_cli logical_device get_allocation
+         (Get LD Allocations: retrieves the memory allocations of the MLD)
+    - fm_cli logical_device set_allocation
+         (Set LD Allocations: sets the memory allocation for each LD)
+    - fm_cli logical_device get_qos_control
+         (Get QoS Control: retrieves the MLD’s QoS control parameters)
+    - fm_cli logical_device set_qos_control
+         (Set QoS Control: sets the MLD’s QoS control parameters)
+    - fm_cli logical_device get_qos_status
+         (Get QoS Status: retrieves the MLD’s QoS Status)
+    - fm_cli logical_device get_qos_allocated_bandwidth
+         (Get QoS Allocated Bandwidth: retrieves the MLD’s QoS allocated
+          bandwidth on a per-LD basis)
+    - fm_cli logical_device set_qos_allocated_bandwidth
+         (Set QoS Allocated Bandwidth: sets the MLD’s QoS allocated bandwidth
+          on a per-LD basis)
+    - fm_cli logical_device get_qos_bandwidth_limit
+         (Get QoS Bandwidth Limit: retrieves the MLD’s QoS bandwidth limit
+          on a per-LD basis)
+    - fm_cli logical_device set_qos_bandwidth_limit
+         (Set QoS Bandwidth Limit: sets the MLD’s QoS bandwidth limit
+          on a per-LD basis)
+    - fm_cli logical_device erase
+         (secure erase after unbinding)
+
+PCI-to-PCI Bridge - manage PPB (PCI-to-PCI Bridge)
+Subcommands:
+    - fm_cli ppb config
+         (Send PPB (PCI-to-PCI Bridge) CXL.io Configuration Request)
+    - fm_cli ppb bind
+         (Bind vPPB: Virtual PCI-to-PCI Bridge inside a CXL switch
+          that is host-owned)
+    - fm_cli ppb unbind
+         (Unbind vPPB: unbinds the physical port or LD from the virtual
+          hierarchy PPB)
+
+Physical Port - manage physical ports
+Subcommands:
+    - fm_cli physical_port get_info
+         (get state of physical port)
+    - fm_cli physical_port control
+         (control unbound ports and MLD ports, including issuing
+          resets and controlling sidebands)
+    - fm_cli physical_port bind
+         (bind physical port to vPPB (Virtual PCI-to-PCI Bridge))
+    - fm_cli physical_port unbind
+         (unbind physical port from vPPB (Virtual PCI-to-PCI Bridge))
+
+MLD (Multi-Logical Device) Port - manage Multi-Logical Device ports
+Subcommands:
+    - fm_cli mld_port tunnel
+         (Tunnel Management Command: tunnels the provided command to
+          LD FFFFh of the MLD on the specified port)
+    - fm_cli mld_port send_config
+         (Send LD (Logical Device) or FMLD (Fabric Manager-owned
+          Logical Device) CXL.io Configuration Request)
+    - fm_cli mld_port send_memory_request
+         (Send LD CXL.io Memory Request)
+
+DCD (Dynamic Capacity Device) - manage Dynamic Capacity Device
+Subcommands:
+    - fm_cli dcd get_info
+         (Get DCD Info: retrieves the number of supported hosts,
+          total Dynamic Capacity of the device, and supported region
+          configurations)
+    - fm_cli dcd get_capacity_config
+         (Get Host Dynamic Capacity Region Configuration: retrieves
+          the Dynamic Capacity configuration for a specified host)
+    - fm_cli dcd set_capacity_config
+         (Set Dynamic Capacity Region Configuration: sets
+          the configuration of a DC Region)
+    - fm_cli dcd get_extent_list
+         (Get DCD Extent Lists: retrieves the Dynamic Capacity Extent
+          List for a specified host)
+    - fm_cli dcd add_capacity
+         (Initiate Dynamic Capacity Add: initiates the addition of
+          Dynamic Capacity to the specified region on a host)
+    - fm_cli dcd release_capacity
+         (Initiate Dynamic Capacity Release: initiates the release of
+          Dynamic Capacity from a host)
+
+FM daemon receives requests from configuration tool and executes
+commands by means of interaction with kernel-space subsystems.
+The responsibility of FM daemon:
+    - Execute configuration tool commands
+    - Manage hot-add and hot-removal of devices
+    - Manage surprise removal of devices
+    - Receive and handle even notifications from the CXL switch
+    - Logging events
+    - Memory allocation and QoS Telemetry management
+    - Error/Failure handling
