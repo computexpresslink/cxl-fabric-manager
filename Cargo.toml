@@ -1,0 +1,12 @@
+[package]
+name = "fabric_manager"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "fm_library"
+path = "fm_library/src/lib.rs"
+
+[dependencies]
