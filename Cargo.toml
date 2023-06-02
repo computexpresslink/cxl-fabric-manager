@@ -9,4 +9,10 @@ edition = "2021"
 name = "fm_library"
 path = "fm_library/src/lib.rs"
 
+[[bin]]
+name = "fm_daemon"
+path = "fm_daemon/src/main.rs"
+
 [dependencies]
+clap = { version = "4.0.32", features = ["derive"] }
+daemonize = "0.5.0"
