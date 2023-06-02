@@ -13,6 +13,10 @@ path = "fm_library/src/lib.rs"
 name = "fm_daemon"
 path = "fm_daemon/src/main.rs"
 
+[[bin]]
+name = "orchestrator"
+path = "orchestrator/src/main.rs"
+
 [dependencies]
 clap = { version = "4.0.32", features = ["derive"] }
 daemonize = "0.5.0"
